@@ -1,0 +1,46 @@
+# Archivos de configuración con credenciales
+/config/config.php
+/config/database.php
+
+# Archivos subidos por usuarios
+/public/uploads/comprobantes/*
+/public/uploads/documentos/*
+/public/uploads/events/*
+/public/uploads/qr/*
+!/public/uploads/comprobantes/.gitkeep
+!/public/uploads/documentos/.gitkeep
+!/public/uploads/events/.gitkeep
+!/public/uploads/qr/.gitkeep
+
+# Logs
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# Cache de QR
+/core/qr/cache/mask_*/*
+!/core/qr/cache/mask_*/.gitkeep
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos del IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos temporales de PHP
+*.log
+.htaccess.old
+.htpasswd
+
+# Dependencias (si usas Composer)
+/vendor/
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
