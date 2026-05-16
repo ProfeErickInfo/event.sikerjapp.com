@@ -22,6 +22,7 @@
             top: 0; left: 0;
             z-index: 100;
             transition: all 0.3s;
+            overflow-y: auto;
         }
         #sidebar .brand {
             padding: 20px 16px;
@@ -85,11 +86,6 @@
         .card { border: none; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-radius: 12px; }
         .card-header { background: #fff; border-bottom: 1px solid #f0f0f0; font-weight: 600; }
 
-        /* BADGES de rol */
-        .badge-admin    { background: #fee2e2; color: #dc2626; }
-        .badge-club     { background: #dbeafe; color: #2563eb; }
-        .badge-invitado { background: #d1fae5; color: #059669; }
-
         /* Responsive */
         @media (max-width: 768px) {
             #sidebar { margin-left: -250px; }
@@ -103,22 +99,23 @@
 <!-- SIDEBAR -->
 <nav id="sidebar">
     <div class="brand">
-        <h5><i class="bi bi-calendar-event"></i> <?= APP_NAME ?></h5>
+        <h5><i class="bi bi-calendar-event me-2"></i><?= APP_NAME ?></h5>
         <small>v<?= APP_VERSION ?></small>
     </div>
 
     <ul class="nav flex-column mt-2">
 
-        <!-- Usuario logueado -->
         <?php if (Session::isLoggedIn()): ?>
             <?php $user = Session::user(); ?>
 
+            <!-- Dashboard -->
             <li class="nav-item">
                 <a class="nav-link" href="<?= url('dashboard') ?>">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
 
+            <!-- Eventos -->
             <li><div class="section-title">Eventos</div></li>
             <li class="nav-item">
                 <a class="nav-link" href="<?= url('events') ?>">
@@ -126,36 +123,45 @@
                 </a>
             </li>
 
-            <?php if (in_array($user['tipoU'], [0, 3])): // Admin ?>
-                <li><div class="section-title">Administración</div></li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= url('admin/events') ?>">
-                        <i class="bi bi-calendar-plus"></i> Gestionar Eventos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= url('admin/inscripciones') ?>">
-                        <i class="bi bi-people"></i> Inscripciones
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= url('admin/pagos') ?>">
-                        <i class="bi bi-credit-card"></i> Pagos
-                    </a>
-                </li>
-                <li class="nav-item">
-    <a class="nav-link" href="<?= url('admin/events') ?>">
-        <i class="bi bi-person-badge me-2"></i> Credenciales
-    </a>
-</li>
-                <li class="nav-item">
-                   <a class="nav-link" href="<?= url('admin/events') ?>">
-    <i class="bi bi-qr-code-scan me-2"></i> Asistencia QR
-</a>
-                </li>
+            <?php if (in_array($user['tipoU'], [0, 3])): ?>
+            <!-- Administración -->
+            <li><div class="section-title">Administración</div></li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= url('admin/events') ?>">
+                    <i class="bi bi-calendar-plus"></i> Gestionar Eventos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= url('admin/inscripciones') ?>">
+                    <i class="bi bi-people"></i> Inscripciones
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= url('admin/pagos') ?>">
+                    <i class="bi bi-credit-card"></i> Pagos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= url('admin/events') ?>"
+                   title="Selecciona un evento para gestionar credenciales">
+                    <i class="bi bi-person-badge"></i> Credenciales
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= url('admin/events') ?>"
+                   title="Selecciona un evento para tomar asistencia">
+                    <i class="bi bi-qr-code-scan"></i> Asistencia QR
+                </a>
+            </li>
             <?php endif; ?>
 
+            <!-- Mi Cuenta -->
             <li><div class="section-title">Mi Cuenta</div></li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= url('perfil') ?>">
+                    <i class="bi bi-person-circle"></i> Mi Perfil
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="<?= url('auth/logout') ?>">
                     <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
@@ -199,8 +205,12 @@
             <?php $user = Session::user(); ?>
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-person-circle fs-5 text-muted"></i>
-                <span class="text-muted small"><?= e($user['nickz']) ?></span>
-                <span class="badge badge-admin rounded-pill"><?= e($user['role']) ?></span>
+                <a href="<?= url('perfil') ?>" class="text-muted small text-decoration-none">
+                    <?= e($user['name'] ?? $user['nickz']) ?>
+                </a>
+                <span class="badge bg-primary-subtle text-primary rounded-pill">
+                    <?= e($user['role']) ?>
+                </span>
             </div>
         <?php endif; ?>
     </div>
@@ -228,7 +238,8 @@
     // Marcar link activo en sidebar
     const currentPath = window.location.pathname;
     document.querySelectorAll('#sidebar .nav-link').forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
+        const href = link.getAttribute('href');
+        if (href && currentPath.startsWith(href) && href !== '/') {
             link.classList.add('active');
         }
     });

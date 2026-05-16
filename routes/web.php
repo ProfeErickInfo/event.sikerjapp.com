@@ -74,3 +74,7 @@ $router->get( 'events/{id}/documentos',       'DocumentosController@lista');
 $router->get( 'admin/documentos/{id}',        'DocumentosController@admin',  ['auth']);
 $router->post('admin/documentos/upload/{id}', 'DocumentosController@upload', ['auth']);
 $router->post('admin/documentos/delete/{id}', 'DocumentosController@delete', ['auth']);
+// ── PERFIL ───────────────────────────────────────────────────
+$router->get( 'perfil',                  'PerfilController@index',          ['auth']);
+$router->post('perfil/actualizar',       'PerfilController@actualizar',     ['auth']);
+$router->post('perfil/cambiar-password', 'PerfilController@cambiarPassword',['auth']);
