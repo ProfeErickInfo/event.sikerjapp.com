@@ -68,7 +68,7 @@ class EventosController extends Controller
     // GET /admin/events — Lista admin
     public function index(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $perPage = 15;
         $page    = max(1, (int) $this->query('page', 1));
@@ -90,7 +90,7 @@ class EventosController extends Controller
     // GET /admin/events/create — Formulario crear evento
     public function create(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
         $categorias = $this->eventoModel->getCategorias();
 
         $this->viewWithLayout('admin/events/form', 'layouts/main', [
@@ -103,7 +103,7 @@ class EventosController extends Controller
     // POST /admin/events/store — Guarda nuevo evento
     public function store(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $data   = $this->getFormData();
         $errors = $this->validate($data);
@@ -145,7 +145,7 @@ class EventosController extends Controller
     // GET /admin/events/edit/{id} — Formulario editar evento
     public function edit(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $evento = $this->eventoModel->find((int) $id);
         if (!$evento) {
@@ -166,7 +166,7 @@ class EventosController extends Controller
     // POST /admin/events/update/{id} — Actualiza evento
     public function update(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $evento = $this->eventoModel->find((int) $id);
         if (!$evento) {

@@ -45,7 +45,7 @@ class PagosController extends Controller
 
         // Obtiene comprobantes según tipo de usuario
         $idDelegacion = null;
-        if ($user['tipoU'] == 1) {
+        if ($user['tipoU'] == 2) {
             require_once ROOT_PATH . '/app/Models/DelegacionModel.php';
             $delegacionModel = new DelegacionModel();
             $delegacion      = $delegacionModel->getByUsuario($user['id']);
@@ -127,7 +127,7 @@ class PagosController extends Controller
 
         // Obtiene delegación si aplica
         $idDelegacion = null;
-        if ($user['tipoU'] == 1) {
+        if ($user['tipoU'] == 2) {
             require_once ROOT_PATH . '/app/Models/DelegacionModel.php';
             $delegacionModel = new DelegacionModel();
             $delegacion      = $delegacionModel->getByUsuario($user['id']);
@@ -153,7 +153,7 @@ class PagosController extends Controller
     // GET /admin/pagos
     public function index(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $idEvento = (int) $this->query('evento', 0);
         $db       = Database::getInstance()->getConnection();
@@ -184,7 +184,7 @@ class PagosController extends Controller
     // POST /admin/pagos/aprobar/{id}
     public function aprobar(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $user     = Session::user();
         $idEvento = (int) $this->input('id_evento');
@@ -228,7 +228,7 @@ class PagosController extends Controller
     // POST /admin/pagos/rechazar/{id}
     public function rechazar(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $idEvento = (int) $this->input('id_evento');
         $this->comprobanteModel->rechazar((int) $id);
@@ -241,7 +241,7 @@ class PagosController extends Controller
 
     private function getInscripcionActiva(array $user, int $idEvento): array|false
     {
-        if ($user['tipoU'] == 1) {
+        if ($user['tipoU'] == 2) {
             require_once ROOT_PATH . '/app/Models/DelegacionModel.php';
             $delegacionModel = new DelegacionModel();
             $delegacion      = $delegacionModel->getByUsuario($user['id']);

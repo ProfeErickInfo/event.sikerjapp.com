@@ -93,7 +93,7 @@ class AuthController extends Controller
     public function register(): void
     {
         $data = [
-            'tipoU' => (int) $this->input('tipoU', 8),
+           'tipoU' => (int) $this->input('tipoU', 3),
             'name'  => $this->input('name'),
             'email' => $this->input('email'),
         ];

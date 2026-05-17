@@ -156,7 +156,7 @@
                 <!-- Botón credencial -->
                 <?php if (!empty($inscrito) && Session::isLoggedIn()): ?>
                     <?php $user = Session::user(); ?>
-                    <?php if ($user['tipoU'] != 1): ?>
+                    <?php if ($user['tipoU'] != 2): ?>
                         <?php
                         require_once ROOT_PATH . '/app/Models/CredencialModel.php';
                         $credModel = new CredencialModel();
@@ -189,7 +189,7 @@
         </div>
 
         <!-- Botones admin -->
-        <?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [0, 3])): ?>
+        <?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [1, 4])): ?>
         <div class="card mt-3">
             <div class="card-header py-3">
                 <i class="bi bi-gear me-2"></i>Administración

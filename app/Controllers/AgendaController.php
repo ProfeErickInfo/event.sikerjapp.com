@@ -44,7 +44,7 @@ class AgendaController extends Controller
     // GET /admin/agenda/{id_evento}
     public function admin(string $idEvento): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $evento   = $this->eventoModel->getConCategoria((int) $idEvento);
         if (!$evento) {
@@ -64,7 +64,7 @@ class AgendaController extends Controller
     // POST /admin/agenda/sesion/store
     public function storeSesion(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $user     = Session::user();
         $idEvento = (int) $this->input('id_evento');
@@ -98,7 +98,7 @@ class AgendaController extends Controller
     // POST /admin/agenda/sesion/update/{id}
     public function updateSesion(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $idEvento = (int) $this->input('id_evento');
 
@@ -116,7 +116,7 @@ class AgendaController extends Controller
     // POST /admin/agenda/sesion/delete/{id}
     public function deleteSesion(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $idEvento = (int) $this->input('id_evento');
         $this->agendaModel->eliminarSesion((int) $id);
@@ -130,7 +130,7 @@ class AgendaController extends Controller
     // POST /admin/agenda/cronograma/store
     public function storeCronograma(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $user     = Session::user();
         $idEvento = (int) $this->input('id_evento');
@@ -170,7 +170,7 @@ class AgendaController extends Controller
     // POST /admin/agenda/cronograma/delete/{id}
     public function deleteCronograma(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $idEvento = (int) $this->input('id_evento');
         $this->agendaModel->eliminarCronograma((int) $id);

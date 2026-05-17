@@ -4,7 +4,7 @@
         <h4 class="fw-bold mb-1">Eventos</h4>
         <small class="text-muted"><?= $total ?> evento<?= $total !== 1 ? 's' : '' ?> encontrado<?= $total !== 1 ? 's' : '' ?></small>
     </div>
-    <?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [0, 3])): ?>
+    <?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [1, 4])): ?>
         <a href="<?= url('admin/events/create') ?>" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-circle me-1"></i> Nuevo Evento
         </a>

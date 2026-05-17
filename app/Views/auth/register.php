@@ -7,63 +7,89 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
-        body {
-            background: linear-gradient(135deg, #1a2035 0%, #2d3a5e 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 0;
-        }
-        .register-card {
-            width: 100%;
-            max-width: 480px;
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        .register-header {
-            background: linear-gradient(135deg, #1a2035, #2d3a5e);
-            color: white;
-            border-radius: 16px 16px 0 0;
-            padding: 28px 32px;
-            text-align: center;
-        }
-        .register-header i { font-size: 2rem; margin-bottom: 6px; display: block; }
-        .register-body { padding: 32px; }
-        .form-control:focus, .form-select:focus {
-            border-color: #2d3a5e;
-            box-shadow: 0 0 0 3px rgba(45,58,94,0.15);
-        }
-        .btn-register {
-            background: linear-gradient(135deg, #1a2035, #2d3a5e);
-            border: none;
-            color: white;
-            padding: 12px;
-            font-weight: 600;
-            border-radius: 8px;
-        }
-        .btn-register:hover { opacity: 0.9; color: white; }
-        .tipo-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-        .tipo-card:hover { border-color: #2d3a5e; background: #f8f9ff; }
-        .tipo-card.selected { border-color: #2d3a5e; background: #f0f4ff; }
-        .tipo-card i { font-size: 1.8rem; display: block; margin-bottom: 6px; }
-        .info-box {
-            background: #f0f7ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 0.85rem;
-            color: #1e40af;
-        }
-    </style>
+    body {
+        background-image: url('https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=1200&q=70&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 0;
+        position: relative;
+    }
+    body::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(26, 32, 53, 0.92) 0%,
+            rgba(45, 58, 94, 0.85) 50%,
+            rgba(78, 110, 210, 0.75) 100%
+        );
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+    .register-card {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 480px;
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+        background: rgba(255,255,255,0.97);
+    }
+    .register-header {
+        background: linear-gradient(135deg, #1a2035, #2d3a5e);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 28px 32px;
+        text-align: center;
+    }
+    .register-header i { font-size: 2rem; margin-bottom: 6px; display: block; }
+    .register-body { padding: 32px; }
+    .form-control:focus, .form-select:focus {
+        border-color: #4e6ed2;
+        box-shadow: 0 0 0 3px rgba(78,110,210,0.15);
+    }
+    .btn-register {
+        background: linear-gradient(135deg, #1a2035, #4e6ed2);
+        border: none;
+        color: white;
+        padding: 13px;
+        font-weight: 600;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(78,110,210,0.3);
+        transition: all 0.3s;
+    }
+    .btn-register:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 25px rgba(78,110,210,0.4);
+        color: white;
+    }
+    .tipo-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+    .tipo-card:hover { border-color: #4e6ed2; background: #f8f9ff; }
+    .tipo-card.selected { border-color: #4e6ed2; background: #f0f4ff; }
+    .tipo-card i { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+    .info-box {
+        background: #f0f7ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+        color: #1e40af;
+    }
+</style>
 </head>
 <body>
 
@@ -91,23 +117,23 @@
                 <label class="form-label fw-semibold">Tipo de registro</label>
                 <div class="row g-2">
                     <div class="col-6">
-                        <div class="tipo-card <?= ($old['tipoU'] ?? '8') == '8' ? 'selected' : '' ?>"
-                             onclick="selectTipo(8, this)">
+                        <div class="tipo-card <?= ($old['tipoU'] ?? '3') == '3' ? 'selected' : '' ?>"
+                             onclick="selectTipo(3, this)">
                             <i class="bi bi-person text-primary"></i>
                             <strong>Individual</strong>
                             <small class="d-block text-muted">Seminarios y eventos</small>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="tipo-card <?= ($old['tipoU'] ?? '') == '1' ? 'selected' : '' ?>"
-                             onclick="selectTipo(1, this)">
+                        <div class="tipo-card <?= ($old['tipoU'] ?? '') == '2' ? 'selected' : '' ?>"
+                             onclick="selectTipo(2, this)">
                             <i class="bi bi-people text-success"></i>
                             <strong>Club / Delegación</strong>
                             <small class="d-block text-muted">Clubes afiliados</small>
                         </div>
                     </div>
                 </div>
-                <input type="hidden" name="tipoU" id="tipoU" value="<?= e($old['tipoU'] ?? '8') ?>">
+            <input type="hidden" name="tipoU" id="tipoU" value="<?= e($old['tipoU'] ?? '3') ?>">
             </div>
 
             <!-- Nombre completo -->

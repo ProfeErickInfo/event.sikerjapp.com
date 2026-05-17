@@ -1,14 +1,9 @@
 <?php
 $roles = [
-    0 => 'Administrador',
-    1 => 'Club Afiliado',
-    2 => 'Club Invitado',
-    3 => 'Administrador de Torneo',
-    4 => 'Juez de Báscula',
-    5 => 'Juez de Revisión',
-    6 => 'Juez de Mesa',
-    7 => 'Juez de Poomsae',
-    8 => 'Invitado Individual',
+    1 => 'admin',
+    2 => 'delegacion',
+    3 => 'invitado',
+    4 => 'manager',
 ];
 $tipoNombre = $roles[$usuario['tipoU']] ?? 'Usuario';
 ?>

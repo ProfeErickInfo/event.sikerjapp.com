@@ -123,7 +123,7 @@
                 </a>
             </li>
 
-            <?php if (in_array($user['tipoU'], [0, 3])): ?>
+            <?php if (in_array($user['tipoU'], [1, 4])): ?>
             <!-- Administración -->
             <li><div class="section-title">Administración</div></li>
             <li class="nav-item">

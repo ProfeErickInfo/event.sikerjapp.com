@@ -68,7 +68,7 @@ class CredencialController extends Controller
     // GET /admin/credenciales/{id_evento}
     public function admin(string $idEvento): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $evento   = $this->eventoModel->getConCategoria((int) $idEvento);
         if (!$evento) {
@@ -88,7 +88,7 @@ class CredencialController extends Controller
     // POST /admin/credenciales/aprobar
     public function aprobar(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $user         = Session::user();
         $idEvento     = (int) $this->input('id_evento');
@@ -269,7 +269,7 @@ private function generarPDFCredencial(array $datos, string $qrPath): void
     // POST /admin/credenciales/revocar
 public function revocar(): void
 {
-    $this->requireRole('admin', 'admin_torneo');
+    $this->requireRole('admin', 'manager');
 
     $idEvento  = (int) $this->input('id_evento');
     $idUsuario = (int) $this->input('id_usuario');

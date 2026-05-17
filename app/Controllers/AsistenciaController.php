@@ -23,7 +23,7 @@ class AsistenciaController extends Controller
     // GET /admin/asistencia/{id_evento}
     public function index(string $idEvento): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $evento   = $this->eventoModel->getConCategoria((int) $idEvento);
         if (!$evento) {
@@ -58,7 +58,7 @@ class AsistenciaController extends Controller
     // POST /admin/asistencia/scan — Procesa el QR escaneado
     public function scan(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $qrData   = $this->input('qr_data');
         $idEvento = (int) $this->input('id_evento');

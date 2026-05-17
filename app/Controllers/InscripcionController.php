@@ -37,7 +37,7 @@ class InscripcionController extends Controller
         $user = Session::user();
 
         // Si es delegación, redirige al flujo de delegación
-        if ($user['tipoU'] == 1) {
+        if ($user['tipoU'] == 2) {
             $this->redirect('events/' . $idEvento . '/delegacion');
             return;
         }

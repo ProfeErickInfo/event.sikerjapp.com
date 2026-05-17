@@ -42,7 +42,7 @@ class DocumentosController extends Controller
     // GET /admin/documentos/{id_evento}
     public function admin(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $evento = $this->eventoModel->getConCategoria((int) $id);
         if (!$evento) {
@@ -62,7 +62,7 @@ class DocumentosController extends Controller
     // POST /admin/documentos/upload/{id_evento}
     public function upload(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $nombre = $this->input('nombre');
 
@@ -120,7 +120,7 @@ class DocumentosController extends Controller
     // POST /admin/documentos/delete/{id}
     public function delete(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $doc = $this->documentoModel->eliminar((int) $id);
 

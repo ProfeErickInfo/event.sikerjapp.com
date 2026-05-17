@@ -38,16 +38,11 @@ class UsuarioModel extends Model
     {
         // Determina el role en texto según tipoU
         $roles = [
-            0 => 'admin',
-            1 => 'club',
-            2 => 'club_invitado',
-            3 => 'admin_torneo',
-            4 => 'juez_bascula',
-            5 => 'juez_revision',
-            6 => 'juez_mesa',
-            7 => 'juez_poomsae',
-            8 => 'invitado',
-        ];
+    1 => 'admin',
+    2 => 'delegacion',
+    3 => 'invitado',
+    4 => 'manager',
+];
 
         return $this->insert([
             'tipoU'    => $data['tipoU'],
