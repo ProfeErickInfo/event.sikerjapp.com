@@ -1,3 +1,36 @@
+<?php
+/**
+ * @var array $evento - Información del evento actual
+ * @var int $idSesion - ID de la sesión seleccionada (0 = entrada general)
+ * @var array $sesiones - Lista de sesiones del evento
+ * @var array|null $sesionActual - Datos de la sesión actual si está seleccionada
+ * @var array $asistencia - Lista de registros de asistencia
+ */
+?>
+
+<style>
+@media (max-width: 768px) {
+    #reader {
+        min-height: 280px;
+    }
+    /* Inputs manuales más grandes */
+    #qrManual {
+        font-size: 16px; /* evita zoom en iOS */
+        padding: 10px;
+    }
+    /* Resultado más visible */
+    #resultado .alert {
+        font-size: 1rem;
+        padding: 16px;
+    }
+    /* Tabla de asistencia compacta */
+    #tablaAsistencia td {
+        font-size: 0.8rem;
+        padding: 6px 8px;
+    }
+}
+</style>
+
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
@@ -64,17 +97,29 @@
                 </div>
 
                 <!-- Entrada manual como respaldo -->
-                <div class="mt-3">
-                    <p class="text-muted small mb-2">¿No funciona la cámara? Ingresa el código manualmente:</p>
-                    <div class="input-group input-group-sm">
-                        <input type="text" id="qrManual" class="form-control"
-                               placeholder="Pega el código QR aquí">
-                        <button class="btn btn-primary" onclick="procesarQR(document.getElementById('qrManual').value)">
-                            <i class="bi bi-check-lg"></i>
-                        </button>
-                    </div>
-                </div>
-
+              <!-- Entrada por documento -->
+<div class="mt-3">
+    <?php if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on'): ?>
+    <div class="alert alert-warning small py-2 px-3 mb-2">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        La cámara requiere HTTPS. Disponible en el servidor de producción.
+    </div>
+    <?php endif; ?>
+    <label class="form-label small fw-semibold">
+        <i class="bi bi-card-text me-1"></i>Buscar por número de documento
+    </label>
+    <div class="input-group">
+        <input type="text" id="qrManual" class="form-control"
+               placeholder="Ej: 1234567890"
+               style="font-size:16px;"
+               onkeypress="if(event.key==='Enter') procesarQR(this.value)">
+        <button class="btn btn-primary px-4"
+                onclick="procesarQR(document.getElementById('qrManual').value)">
+            <i class="bi bi-check-lg me-1"></i>Registrar
+        </button>
+    </div>
+    <small class="text-muted">También puedes escanear el QR de la credencial.</small>
+</div>
             </div>
         </div>
 
@@ -243,5 +288,11 @@ function agregarFila(nombre, delegacion, hora) {
     tr.style.background = '#d1fae5';
     tbody.insertBefore(tr, tbody.firstChild);
     setTimeout(() => tr.style.background = '', 2000);
+}
+
+// Ajuste para móvil — escáner más grande
+if (window.innerWidth <= 768) {
+    document.getElementById('reader').style.minHeight = '300px';
+    document.querySelector('.col-lg-5').classList.add('mb-3');
 }
 </script>

@@ -1,3 +1,11 @@
+<?php
+/**
+ * Vista: Detalle de Evento
+ * 
+ * @var array $evento Array con datos del evento
+ * @var mixed $inscrito Datos de inscripción del usuario (false si no está inscrito)
+ */
+?>
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
@@ -104,7 +112,21 @@
         <div class="card">
             <div class="card-body p-3">
 
-                <?php if (!Session::isLoggedIn()): ?>
+                <?php 
+                $user = Session::isLoggedIn() ? Session::user() : null;
+                $esManager = $user && $user['tipoU'] == 4;
+                $esEventoPropio = $user && isset($evento['id_admin']) && $evento['id_admin'] == $user['id'];
+                ?>
+
+                <?php if ($esManager && !$esEventoPropio): ?>
+                    <!-- Manager viendo un evento que no es suyo -->
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-eye fs-2 d-block mb-2"></i>
+                        <small>Solo puedes gestionar tu evento asignado.</small>
+                    </div>
+
+                <?php else: ?>
+                    <?php if (!Session::isLoggedIn()): ?>
                     <p class="text-muted small mb-3">Debes iniciar sesión para inscribirte en este evento.</p>
                     <a href="<?= url('auth/login') ?>" class="btn btn-primary w-100">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
@@ -153,16 +175,19 @@
                 </a>
                 <?php endif; ?>
 
-                <!-- Botón credencial -->
+                <!-- Botón credencial y certificado -->
                 <?php if (!empty($inscrito) && Session::isLoggedIn()): ?>
                     <?php $user = Session::user(); ?>
                     <?php if ($user['tipoU'] != 2): ?>
                         <?php
                         require_once ROOT_PATH . '/app/Models/CredencialModel.php';
-                        $credModel = new CredencialModel();
-                        $aprobada  = $credModel->isAprobada($user['id'], $evento['id']);
+                        $credModel       = new CredencialModel();
+                        $credAprobada    = $credModel->isAprobada($user['id'], $evento['id'], 1);
+                        $certAprobado    = $credModel->isAprobada($user['id'], $evento['id'], 2);
                         ?>
-                        <?php if ($aprobada): ?>
+
+                        <!-- Credencial -->
+                        <?php if ($credAprobada): ?>
                         <a href="<?= url('credential/' . $user['id'] . '/' . $evento['id']) ?>"
                            class="btn btn-success w-100 mt-2 btn-sm" target="_blank">
                             <i class="bi bi-person-badge me-2"></i>Descargar Credencial
@@ -172,6 +197,19 @@
                             <i class="bi bi-clock me-1"></i>Credencial pendiente de aprobación
                         </div>
                         <?php endif; ?>
+
+                        <!-- Certificado -->
+                        <?php if ($certAprobado): ?>
+                        <a href="<?= url('certificate/' . $user['id'] . '/' . $evento['id']) ?>"
+                           class="btn btn-warning w-100 mt-2 btn-sm" target="_blank">
+                            <i class="bi bi-award me-2"></i>Descargar Certificado
+                        </a>
+                        <?php else: ?>
+                        <div class="alert alert-secondary py-2 px-3 mt-2 mb-0 small">
+                            <i class="bi bi-clock me-1"></i>Certificado pendiente de aprobación
+                        </div>
+                        <?php endif; ?>
+
                     <?php endif; ?>
                 <?php endif; ?>
 
@@ -185,11 +223,20 @@
     <i class="bi bi-folder me-2"></i>Documentos
 </a>
 
+                <?php endif; ?>
+
             </div>
         </div>
 
         <!-- Botones admin -->
-        <?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [1, 4])): ?>
+        <?php 
+        $userActual = Session::user();
+        $puedeAdmin = Session::isLoggedIn() && (
+            $userActual['tipoU'] == 1 || 
+            ($userActual['tipoU'] == 4 && ($evento['id_admin'] ?? 0) == $userActual['id'])
+        );
+        ?>
+        <?php if ($puedeAdmin): ?>
         <div class="card mt-3">
             <div class="card-header py-3">
                 <i class="bi bi-gear me-2"></i>Administración
@@ -207,14 +254,6 @@
                    class="btn btn-secondary btn-sm">
                     <i class="bi bi-person-badge me-2"></i>Credenciales
                 </a>
-            <a href="<?= url('events/' . $evento['id'] . '/agenda') ?>"
-   class="btn btn-outline-primary w-100 btn-sm mb-2">
-    <i class="bi bi-calendar3 me-2"></i>Ver Agenda
-</a>
-<a href="<?= url('events/' . $evento['id'] . '/documentos') ?>"
-   class="btn btn-outline-secondary w-100 btn-sm">
-    <i class="bi bi-folder me-2"></i>Documentos
-</a>
             </div>
         </div>
         <?php endif; ?>

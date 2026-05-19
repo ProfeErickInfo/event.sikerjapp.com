@@ -1,6 +1,12 @@
 <!-- Encabezado -->
 <div class="d-flex align-items-center justify-content-between mb-4">
     <h4 class="fw-bold mb-0">Inscripciones</h4>
+    <?php if ($idEvento && Session::user()['tipoU'] == 4): ?>
+    <a href="<?= url('admin/inscripciones/nueva/' . $idEvento) ?>"
+       class="btn btn-success btn-sm">
+        <i class="bi bi-person-plus me-1"></i>Inscribir Persona
+    </a>
+    <?php endif; ?>
 </div>
 
 <!-- Selector de evento -->

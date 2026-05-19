@@ -1,4 +1,10 @@
-<?php $isEdit = !is_null($evento); ?>
+<?php
+/**
+ * @var array|null $evento Datos del evento (null si es creación)
+ * @var array $categorias Lista de categorías
+ */
+$isEdit = !is_null($evento);
+?>
 
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-4">
@@ -102,6 +108,23 @@
     </div>
     <small class="text-muted">Ingresa 0 si el evento es gratuito.</small>
 </div>
+                        <!-- Manager del evento -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                Manager del evento
+                                <small class="text-muted fw-normal">(opcional — se crea automáticamente)</small>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-gear"></i></span>
+                                <input type="email" name="email_admin" class="form-control"
+                                       placeholder="correo@cliente.com"
+                                       value="<?= e($evento['email_admin'] ?? '') ?>">
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Si ingresas un correo se creará un usuario Manager y se le enviarán sus credenciales.
+                            </small>
+                        </div>
                         <!-- Inscripción y Estado -->
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Inscripciones</label>

@@ -61,19 +61,31 @@ $misInscripciones = $stmt->fetchAll();
 $stats['mis_inscripciones'] = count($misInscripciones);
 
         // Próximos eventos
-        $stmt = $db->prepare(
-            "SELECT e.*, c.nombre as detalle_categoria
-             FROM tbx_eventos e
-             LEFT JOIN tbx_categorias c ON e.id_categoria = c.id
-             WHERE e.estado = 1 AND e.fecha >= CURDATE()
-             ORDER BY e.fecha ASC
-             LIMIT 5"
-        );
-        $stmt->execute();
+        // Si es manager solo ve su evento
+        if ($user['tipoU'] == 4) {
+            $stmt = $db->prepare(
+                "SELECT e.*, c.nombre as detalle_categoria
+                 FROM tbx_eventos e
+                 LEFT JOIN tbx_categorias c ON e.id_categoria = c.id
+                 WHERE e.id_admin = ?
+                 ORDER BY e.fecha ASC"
+            );
+            $stmt->execute([$user['id']]);
+        } else {
+            $stmt = $db->prepare(
+                "SELECT e.*, c.nombre as detalle_categoria
+                 FROM tbx_eventos e
+                 LEFT JOIN tbx_categorias c ON e.id_categoria = c.id
+                 WHERE e.estado = 1 AND e.fecha >= CURDATE()
+                 ORDER BY e.fecha ASC
+                 LIMIT 5"
+            );
+            $stmt->execute();
+        }
         $proximos_eventos = $stmt->fetchAll();
 
         $this->viewWithLayout('dashboard/index', 'layouts/main', [
-            'title'            => 'Dashboard',
+            'title'            => 'Inicio',
             'stats'            => $stats,
             'proximos_eventos' => $proximos_eventos,
             'misInscripciones' => $misInscripciones,

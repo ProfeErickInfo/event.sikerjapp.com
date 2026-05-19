@@ -151,4 +151,41 @@ public function revocarCredencial(int $idUsuario, int $idEvento, int $tipo = 1):
     $stmt->execute([$idUsuario, $idEvento, $tipo]);
 }
 
+
+// Lista de inscritos con estado de certificado para el admin
+public function getListaCertificados(int $idEvento): array
+{
+    return $this->raw(
+        "SELECT 
+            i.id,
+            i.tipo,
+            i.id_usuario,
+            i.id_participante,
+            i.id_delegacion,
+            COALESCE(u.name, p.nombre) as nombre,
+            COALESCE(u.email, p.email) as email,
+            d.nombre as delegacion_nombre,
+            da.aprobado as certificado_aprobado,
+            da.id as id_aprobacion,
+            COALESCE(
+                (SELECT MAX(c.estado) FROM trn_comprobantes c
+                 WHERE c.id_evento = i.id_evento
+                 AND (c.id_usuario = i.id_usuario OR c.id_delegacion = i.id_delegacion)
+                ), 0
+            ) as pago_estado
+         FROM trn_inscripciones i
+         LEFT JOIN wx25_usu u ON i.id_usuario = u.id
+         LEFT JOIN tbx_participantes p ON i.id_participante = p.id
+         LEFT JOIN tbx_delegaciones d ON i.id_delegacion = d.id
+         LEFT JOIN trn_documentos_aprobados da 
+            ON da.id_evento = i.id_evento 
+            AND (
+                (i.tipo = 1 AND da.id_usuario = i.id_usuario AND da.tipo = 2) OR
+                (i.tipo = 2 AND da.id_usuario = i.id_participante AND da.tipo = 2)
+            )
+         WHERE i.id_evento = ? AND i.estado = 1
+         ORDER BY nombre ASC",
+        [$idEvento]
+    );
+}
 }

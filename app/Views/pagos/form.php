@@ -20,7 +20,7 @@
                         <h6 class="fw-bold mb-0"><?= e($evento['nombre_corto']) ?></h6>
                         <small class="text-muted"><?= formatDate($evento['fecha']) ?></small>
                     </div>
-                    <?php $valorTotal = (float) ($evento['valor_inscripcion'] ?? 0); ?>
+                    <?php //$valorTotal = (float) ($evento['valor_inscripcion'] ?? 0); ?>
                     <?php if ($valorTotal > 0): ?>
                     <div class="text-end">
                         <small class="text-muted d-block">Valor total</small>

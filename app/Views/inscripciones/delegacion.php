@@ -52,15 +52,16 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Documento</th>
-                                <th>Estado</th>
-                                <th>Credencial</th>
-                                <th style="width:120px;">Acción</th>
-                            </tr>
-                        </thead>
+                       <thead class="table-light">
+    <tr>
+        <th>Nombre</th>
+        <th>Documento</th>
+        <th>Estado</th>
+        <th>Credencial</th>
+        <th>Certificado</th>
+        <th style="width:120px;">Acción</th>
+    </tr>
+</thead>
                         <tbody>
                             <?php foreach ($participantes as $p): ?>
                             <tr>
@@ -85,6 +86,7 @@
     <span class="badge bg-secondary-subtle text-secondary">Sin inscribir</span>
 <?php endif; ?>
                                 </td>
+                                <!-- Credencial -->
                                 <td>
     <?php if ($p['id_inscripcion'] && $p['inscripcion_estado'] == 1): ?>
         <?php
@@ -104,6 +106,23 @@
         <small class="text-muted">—</small>
     <?php endif; ?>
 </td>
+<!-- Certificado -->
+<td>
+    <?php $certAprobado = $credModel->isAprobada($p['id'], $evento['id'], 2); ?>
+    <?php if ($certAprobado): ?>
+        <a href="<?= url('certificate/participante/' . $p['id'] . '/' . $evento['id']) ?>"
+           target="_blank" class="btn btn-sm btn-warning" title="Descargar certificado">
+            <i class="bi bi-award"></i>
+        </a>
+    <?php elseif ($p['id_inscripcion']): ?>
+        <span class="badge bg-secondary-subtle text-secondary">
+            <i class="bi bi-clock me-1"></i>Pendiente
+        </span>
+    <?php else: ?>
+        <small class="text-muted">—</small>
+    <?php endif; ?>
+</td>
+
                                 <td>
     <div class="d-flex gap-1">
         <a href="<?= url('delegacion/participante/editar/' . $p['id'] . '?evento=' . $evento['id']) ?>"
@@ -131,6 +150,7 @@
         <?php endif; ?>
     </div>
 </td>
+
                             </tr>
                             <?php endforeach; ?>
                         </tbody>

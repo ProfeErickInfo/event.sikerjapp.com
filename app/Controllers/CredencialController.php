@@ -16,7 +16,19 @@ class CredencialController extends Controller
         $this->credencialModel = new CredencialModel();
         $this->eventoModel     = new EventoModel();
     }
-
+private function textoParaPDF(string $texto, bool $mayusculas = true): string
+{
+    if ($mayusculas) $texto = mb_strtoupper($texto, 'UTF-8');
+    
+    $tildes = [
+        'Á'=>'A','É'=>'E','Í'=>'I','Ó'=>'O','Ú'=>'U',
+        'á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u',
+        'Ñ'=>'N','ñ'=>'n','Ü'=>'U','ü'=>'u',
+        'À'=>'A','È'=>'E','Ì'=>'I','Ò'=>'O','Ù'=>'U',
+    ];
+    $texto = strtr($texto, $tildes);
+    return iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $texto);
+}
     // ── CREDENCIAL INDIVIDUAL ────────────────────────────────
 
     // GET /credential/{id_usuario}/{id_evento}
@@ -76,6 +88,14 @@ class CredencialController extends Controller
             return;
         }
 
+        // Verifica acceso del manager
+        $user = Session::user();
+        if ($user['tipoU'] == 4 && $evento['id_admin'] != $user['id']) {
+            Session::flash('error', 'No tienes permiso para acceder a este evento.');
+            $this->redirect('admin/events');
+            return;
+        }
+
         $lista = $this->credencialModel->getListaCredenciales((int) $idEvento);
 
         $this->viewWithLayout('admin/credenciales/index', 'layouts/main', [
@@ -120,47 +140,6 @@ class CredencialController extends Controller
 
         return $path;
     }
-
-// Dibuja una elipse
-private function Ellipse(FPDF $pdf, float $x, float $y, float $rx, float $ry, string $style = ''): void
-{
-    $lx = (4/3) * (M_SQRT2 - 1) * $rx;
-    $ly = (4/3) * (M_SQRT2 - 1) * $ry;
-    $k  = $pdf->k;
-    $h  = $pdf->h;
-    $pdf->_out(sprintf(
-        '%.2F %.2F m %.2F %.2F %.2F %.2F %.2F %.2F c %.2F %.2F %.2F %.2F %.2F %.2F c %.2F %.2F %.2F %.2F %.2F %.2F c %.2F %.2F %.2F %.2F %.2F %.2F c %s',
-        ($x+$rx)*$k, ($h-$y)*$k,
-        ($x+$rx)*$k, ($h-($y-$ly))*$k, ($x+$lx)*$k, ($h-($y-$ry))*$k, $x*$k, ($h-($y-$ry))*$k,
-        ($x-$lx)*$k, ($h-($y-$ry))*$k, ($x-$rx)*$k, ($h-($y-$ly))*$k, ($x-$rx)*$k, ($h-$y)*$k,
-        ($x-$rx)*$k, ($h-($y+$ly))*$k, ($x-$lx)*$k, ($h-($y+$ry))*$k, $x*$k, ($h-($y+$ry))*$k,
-        ($x+$lx)*$k, ($h-($y+$ry))*$k, ($x+$rx)*$k, ($h-($y+$ly))*$k, ($x+$rx)*$k, ($h-$y)*$k,
-        $style == 'F' ? 'f' : ($style == 'FD' || $style == 'DF' ? 'b' : 'S')
-    ));
-}
-
-// Dibuja rectángulo con esquinas redondeadas
-private function RoundedRect(FPDF $pdf, float $x, float $y, float $w, float $h, float $r, string $style = ''): void
-{
-    $k  = $pdf->k;
-    $hp = $pdf->h;
-    $MyArc = 4/3 * (sqrt(2) - 1);
-    $pdf->_out(sprintf('%.2F %.2F m', ($x+$r)*$k, ($hp-$y)*$k));
-    $xc = $x+$w-$r; $yc = $y+$r;
-    $pdf->_out(sprintf('%.2F %.2F l', $xc*$k, ($hp-$y)*$k));
-    $pdf->_Arc($xc+$r*$MyArc, $yc-$r, $xc+$r, $yc-$r*$MyArc, $xc+$r, $yc);
-    $xc = $x+$w-$r; $yc = $y+$h-$r;
-    $pdf->_out(sprintf('%.2F %.2F l', ($x+$w)*$k, ($hp-$yc)*$k));
-    $pdf->_Arc($xc+$r, $yc+$r*$MyArc, $xc+$r*$MyArc, $yc+$r, $xc, $yc+$r);
-    $xc = $x+$r; $yc = $y+$h-$r;
-    $pdf->_out(sprintf('%.2F %.2F l', $xc*$k, ($hp-($y+$h))*$k));
-    $pdf->_Arc($xc-$r*$MyArc, $yc+$r, $xc-$r, $yc+$r*$MyArc, $xc-$r, $yc);
-    $xc = $x+$r; $yc = $y+$r;
-    $pdf->_out(sprintf('%.2F %.2F l', ($x)*$k, ($hp-$yc)*$k));
-    $pdf->_Arc($xc-$r, $yc-$r*$MyArc, $xc-$r*$MyArc, $yc-$r, $xc, $yc-$r);
-    $op = $style == 'F' ? 'f' : ($style == 'FD' || $style == 'DF' ? 'b' : 'S');
-    $pdf->_out($op);
-}
 
     // Genera el PDF de la credencial
    
@@ -231,7 +210,8 @@ private function generarPDFCredencial(array $datos, string $qrPath): void
     // ── Nombre del asistente ──
     $pdf->SetFont('Helvetica', 'B', 9);
     $pdf->SetTextColor(26, 32, 53);
-    $nombre = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', strtoupper($datos['nombre']));
+   
+   $nombre = $this->textoParaPDF($datos['nombre']);
     $pdf->SetXY(2, 63);
     $pdf->MultiCell(50, 5, $nombre, 0, 'C');
 
@@ -239,7 +219,9 @@ private function generarPDFCredencial(array $datos, string $qrPath): void
     if (!empty($datos['delegacion_nombre'])) {
         $pdf->SetFont('Helvetica', 'I', 6);
         $pdf->SetTextColor(78, 110, 210);
-        $delegacion = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $datos['delegacion_nombre']);
+
+       $delegacion = $this->textoParaPDF($datos['delegacion_nombre'], false);
+
         $pdf->SetXY(2, 73);
         $pdf->MultiCell(50, 4, $delegacion, 0, 'C');
     }
@@ -280,4 +262,62 @@ public function revocar(): void
     Session::flash('success', 'Credencial revocada.');
     $this->redirect('admin/credenciales/' . $idEvento);
 }
+// GET /admin/certificados/{id_evento}
+public function adminCertificados(string $idEvento): void
+{
+    $this->requireRole('admin', 'manager');
+
+    $evento = $this->eventoModel->getConCategoria((int) $idEvento);
+    if (!$evento) {
+        $this->redirect('admin/events');
+        return;
+    }
+
+    // Verifica acceso del manager
+    $user = Session::user();
+    if ($user['tipoU'] == 4 && $evento['id_admin'] != $user['id']) {
+        Session::flash('error', 'No tienes permiso para acceder a este evento.');
+        $this->redirect('admin/events');
+        return;
+    }
+
+    $lista = $this->credencialModel->getListaCertificados((int) $idEvento);
+
+    $this->viewWithLayout('admin/credenciales/certificados', 'layouts/main', [
+        'title'  => 'Certificados — ' . $evento['nombre_corto'],
+        'evento' => $evento,
+        'lista'  => $lista,
+    ]);
+}
+
+// POST /admin/certificados/aprobar
+public function aprobarCertificado(): void
+{
+    $this->requireRole('admin', 'manager');
+
+    $user      = Session::user();
+    $idEvento  = (int) $this->input('id_evento');
+    $idUsuario = (int) $this->input('id_usuario');
+    $tipo      = (int) $this->input('tipo', 1);
+
+    $this->credencialModel->aprobarCredencial($idUsuario, $idEvento, $user['id'], 2);
+
+    Session::flash('success', 'Certificado aprobado.');
+    $this->redirect('admin/certificados/' . $idEvento);
+}
+
+// POST /admin/certificados/revocar
+public function revocarCertificado(): void
+{
+    $this->requireRole('admin', 'manager');
+
+    $idEvento  = (int) $this->input('id_evento');
+    $idUsuario = (int) $this->input('id_usuario');
+
+    $this->credencialModel->revocarCredencial($idUsuario, $idEvento, 2);
+
+    Session::flash('success', 'Certificado revocado.');
+    $this->redirect('admin/certificados/' . $idEvento);
+}
+
 }

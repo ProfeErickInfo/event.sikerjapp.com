@@ -31,6 +31,14 @@ class AsistenciaController extends Controller
             return;
         }
 
+        // Verifica acceso del manager
+        $user = Session::user();
+        if ($user['tipoU'] == 4 && $evento['id_admin'] != $user['id']) {
+            Session::flash('error', 'No tienes permiso para acceder a este evento.');
+            $this->redirect('admin/events');
+            return;
+        }
+
         $sesiones    = $this->agendaModel->getSesiones((int) $idEvento);
         $idSesion    = (int) $this->query('sesion', 0);
         $stats       = $this->asistenciaModel->getStats((int) $idEvento);
@@ -56,27 +64,34 @@ class AsistenciaController extends Controller
     }
 
     // POST /admin/asistencia/scan — Procesa el QR escaneado
-    public function scan(): void
-    {
-        $this->requireRole('admin', 'manager');
+   public function scan(): void
+{
+    $this->requireRole('admin', 'manager');
 
-        $qrData   = $this->input('qr_data');
-        $idEvento = (int) $this->input('id_evento');
-        $idSesion = (int) $this->input('id_sesion', 0);
+    $qrData   = $this->input('qr_data');
+    $idEvento = (int) $this->input('id_evento');
+    $idSesion = (int) $this->input('id_sesion', 0);
 
-        if (empty($qrData)) {
-            $this->json(['success' => false, 'message' => 'QR inválido.'], 400);
-            return;
-        }
+    if (empty($qrData)) {
+        $this->json(['success' => false, 'message' => 'Ingresa un código o documento.'], 400);
+        return;
+    }
 
-        // Obtiene datos del usuario desde el QR
+    // Detecta si es QR (contiene |) o es número de documento
+    if (str_contains($qrData, '|')) {
+        // Es QR escaneado
         $usuario = $this->asistenciaModel->getUsuarioByQR($qrData);
+    } else {
+        // Es número de documento — busca en inscritos del evento
+        $usuario = $this->asistenciaModel->getUsuarioByDocumento($qrData, $idEvento);
+    }
 
-        if (!$usuario) {
-            $this->json(['success' => false, 'message' => 'QR no reconocido.'], 404);
-            return;
-        }
+    if (!$usuario) {
+        $this->json(['success' => false, 'message' => 'Documento no encontrado o no inscrito.'], 404);
+        return;
+    }
 
+    // ... resto del método igual
         // Verifica que tenga inscripción aprobada
         if ($usuario['inscripcion_estado'] != 1) {
             $this->json([

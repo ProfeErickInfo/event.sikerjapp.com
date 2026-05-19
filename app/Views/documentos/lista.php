@@ -14,11 +14,14 @@
         <h4 class="fw-bold mb-1">Documentos del Evento</h4>
         <small class="text-muted"><?= e($evento['nombre_corto']) ?></small>
     </div>
-    <?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [0, 3])): ?>
-    <a href="<?= url('admin/documentos/' . $evento['id']) ?>" class="btn btn-primary btn-sm">
-        <i class="bi bi-upload me-1"></i>Administrar
-    </a>
-    <?php endif; ?>
+  
+<?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [1, 4])): ?>
+<a href="<?= url('admin/documentos/' . $evento['id']) ?>" class="btn btn-primary btn-sm">
+    <i class="bi bi-gear me-1"></i>Administrar
+</a>
+<?php endif; ?>
+
+
 </div>
 
 <?php if (empty($documentos)): ?>

@@ -21,6 +21,7 @@ $router->post('admin/events/store',       'EventosController@store',  ['auth']);
 $router->get( 'admin/events/edit/{id}',   'EventosController@edit',   ['auth']);
 $router->post('admin/events/update/{id}', 'EventosController@update', ['auth']);
 $router->post('admin/events/delete/{id}', 'EventosController@delete', ['auth']);
+$router->post('admin/events/eliminar-manager/{id}', 'EventosController@eliminarManager', ['auth']);
 
 // ── INSCRIPCIONES (usuario) ──────────────────────────────────
 $router->get( 'events/{id}/inscribirse',                  'InscripcionController@form',              ['auth']);
@@ -78,3 +79,22 @@ $router->post('admin/documentos/delete/{id}', 'DocumentosController@delete', ['a
 $router->get( 'perfil',                  'PerfilController@index',          ['auth']);
 $router->post('perfil/actualizar',       'PerfilController@actualizar',     ['auth']);
 $router->post('perfil/cambiar-password', 'PerfilController@cambiarPassword',['auth']);
+
+
+// ── CERTIFICADOS ─────────────────────────────────────────────
+$router->get('certificate/participante/{id}/{id_evento}', 'CertificadoController@participante', ['auth']);
+$router->get('certificate/preview/{id}',                  'CertificadoController@preview',      ['auth']);
+$router->get('certificate/{id_usuario}/{id_evento}',      'CertificadoController@individual',   ['auth']);
+
+$router->get('admin/certificado/{id}',                    'EventosController@certificado',      ['auth']);
+$router->post('admin/certificado/plantilla/{id}',         'EventosController@subirPlantilla',   ['auth']);
+$router->post('admin/certificado/config/{id}',            'EventosController@configCertificado',['auth']);
+
+// ── CERTIFICADOS (admin) ──────────────────────────────────────
+$router->get( 'admin/certificados/{id}',      'CredencialController@adminCertificados', ['auth']);
+$router->post('admin/certificados/aprobar',   'CredencialController@aprobarCertificado',['auth']);
+$router->post('admin/certificados/revocar',   'CredencialController@revocarCertificado',['auth']);
+
+
+$router->get( 'admin/inscripciones/nueva/{id}', 'InscripcionController@nueva',     ['auth']);
+$router->post('admin/inscripciones/registrar',  'InscripcionController@registrar', ['auth']);

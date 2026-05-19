@@ -1,14 +1,24 @@
+<?php
+/**
+ * Vista: Lista de Eventos
+ * 
+ * @var array $eventos Array con lista de eventos
+ * @var int $page Página actual
+ * @var int $pages Total de páginas
+ * @var int $total Total de eventos
+ */
+?>
 <!-- Encabezado -->
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
         <h4 class="fw-bold mb-1">Eventos</h4>
         <small class="text-muted"><?= $total ?> evento<?= $total !== 1 ? 's' : '' ?> encontrado<?= $total !== 1 ? 's' : '' ?></small>
     </div>
-    <?php if (Session::isLoggedIn() && in_array(Session::user()['tipoU'], [1, 4])): ?>
-        <a href="<?= url('admin/events/create') ?>" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus-circle me-1"></i> Nuevo Evento
-        </a>
-    <?php endif; ?>
+   <?php if (Session::isLoggedIn() && Session::user()['tipoU'] == 1): ?>
+    <a href="<?= url('admin/events/create') ?>" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Evento
+    </a>
+<?php endif; ?>
 </div>
 
 <!-- Grid de eventos -->
@@ -21,7 +31,7 @@
 <?php else: ?>
     <div class="row g-4">
         <?php foreach ($eventos as $ev): ?>
-        <div class="col-md-4 col-sm-6">
+        <div class="col-lg-4 col-md-6 col-12">
             <div class="card h-100" style="border-radius:12px;overflow:hidden;transition:transform 0.2s;"
                  onmouseover="this.style.transform='translateY(-4px)'"
                  onmouseout="this.style.transform='translateY(0)'">

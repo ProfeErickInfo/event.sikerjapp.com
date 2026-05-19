@@ -44,34 +44,50 @@ class PagosController extends Controller
         }
 
         // Obtiene comprobantes según tipo de usuario
-        $idDelegacion = null;
-        if ($user['tipoU'] == 2) {
-            require_once ROOT_PATH . '/app/Models/DelegacionModel.php';
-            $delegacionModel = new DelegacionModel();
-            $delegacion      = $delegacionModel->getByUsuario($user['id']);
-            $idDelegacion    = $delegacion['id'] ?? null;
-            $comprobantes    = $idDelegacion
-                ? $this->comprobanteModel->getByDelegacion($idDelegacion, (int) $idEvento)
-                : [];
-        } else {
-            $comprobantes = $this->comprobanteModel->getByUsuario($user['id'], (int) $idEvento);
-        }
+        // Obtiene comprobantes según tipo de usuario
+$idDelegacion = null;
+$valorTotal   = (float) ($evento['valor_inscripcion'] ?? 0);
 
-        // Total aprobado
-        $totalAprobado = $this->comprobanteModel->getTotalAprobado(
-            (int) $idEvento,
-            $user['tipoU'] != 1 ? $user['id'] : null,
-            $idDelegacion
+if ($user['tipoU'] == 2) {
+    require_once ROOT_PATH . '/app/Models/DelegacionModel.php';
+    $delegacionModel = new DelegacionModel();
+    $delegacion      = $delegacionModel->getByUsuario($user['id']);
+    $idDelegacion    = $delegacion['id'] ?? null;
+    $comprobantes    = $idDelegacion
+        ? $this->comprobanteModel->getByDelegacion($idDelegacion, (int) $idEvento)
+        : [];
+
+    // Calcula total según cantidad de participantes inscritos
+    if ($idDelegacion) {
+        $db   = Database::getInstance()->getConnection();
+        $stmt = $db->prepare(
+            "SELECT COUNT(*) FROM trn_inscripciones 
+             WHERE id_delegacion = ? AND id_evento = ? AND estado != 2"
         );
+        $stmt->execute([$idDelegacion, (int) $idEvento]);
+        $cantParticipantes = (int) $stmt->fetchColumn();
+        $valorTotal        = $valorTotal * $cantParticipantes;
+    }
+} else {
+    $comprobantes = $this->comprobanteModel->getByUsuario($user['id'], (int) $idEvento);
+}
 
-        $this->viewWithLayout('pagos/form', 'layouts/main', [
-            'title'         => 'Pagos — ' . $evento['nombre_corto'],
-            'evento'        => $evento,
-            'inscripcion'   => $inscripcion,
-            'comprobantes'  => $comprobantes,
-            'totalAprobado' => $totalAprobado,
-            'idDelegacion'  => $idDelegacion,
-        ]);
+// Total aprobado
+$totalAprobado = $this->comprobanteModel->getTotalAprobado(
+    (int) $idEvento,
+    $user['tipoU'] != 2 ? $user['id'] : null,
+    $idDelegacion
+);
+
+      $this->viewWithLayout('pagos/form', 'layouts/main', [
+    'title'         => 'Pagos — ' . $evento['nombre_corto'],
+    'evento'        => $evento,
+    'inscripcion'   => $inscripcion,
+    'comprobantes'  => $comprobantes,
+    'totalAprobado' => $totalAprobado,
+    'idDelegacion'  => $idDelegacion,
+    'valorTotal'    => $valorTotal, // ← agrega esta línea
+]);
     }
 
     // POST /events/{id}/pago/subir
@@ -155,11 +171,34 @@ class PagosController extends Controller
     {
         $this->requireRole('admin', 'manager');
 
+        $user     = Session::user();
         $idEvento = (int) $this->query('evento', 0);
         $db       = Database::getInstance()->getConnection();
-        $eventos  = $db->query(
-            "SELECT id, nombre_corto FROM tbx_eventos ORDER BY fecha DESC"
-        )->fetchAll();
+
+        // Manager solo ve sus eventos
+        if ($user['tipoU'] == 4) {
+            $eventos = $db->prepare(
+                "SELECT id, nombre_corto FROM tbx_eventos WHERE id_admin = ? ORDER BY fecha DESC"
+            );
+            $eventos->execute([$user['id']]);
+            $eventos = $eventos->fetchAll();
+        } else {
+            $eventos  = $db->query(
+                "SELECT id, nombre_corto FROM tbx_eventos ORDER BY fecha DESC"
+            )->fetchAll();
+        }
+
+        // Verifica acceso al evento seleccionado
+        if ($idEvento && $user['tipoU'] == 4) {
+            $stmt = $db->prepare("SELECT id_admin FROM tbx_eventos WHERE id = ?");
+            $stmt->execute([$idEvento]);
+            $ev = $stmt->fetch();
+            if (!$ev || $ev['id_admin'] != $user['id']) {
+                Session::flash('error', 'No tienes permiso para acceder a este evento.');
+                $this->redirect('admin/pagos');
+                return;
+            }
+        }
 
         $comprobantes = [];
         $eventoActual = null;

@@ -52,6 +52,14 @@ class AgendaController extends Controller
             return;
         }
 
+        // Verifica acceso del manager
+        $user = Session::user();
+        if ($user['tipoU'] == 4 && $evento['id_admin'] != $user['id']) {
+            Session::flash('error', 'No tienes permiso para acceder a este evento.');
+            $this->redirect('admin/events');
+            return;
+        }
+
         $sesiones = $this->agendaModel->getSesionesConCronograma((int) $idEvento);
 
         $this->viewWithLayout('admin/agenda/index', 'layouts/main', [
@@ -68,6 +76,19 @@ class AgendaController extends Controller
 
         $user     = Session::user();
         $idEvento = (int) $this->input('id_evento');
+
+        // Verifica acceso del manager
+        if ($user['tipoU'] == 4) {
+            $db   = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id_admin FROM tbx_eventos WHERE id = ?");
+            $stmt->execute([$idEvento]);
+            $ev = $stmt->fetch();
+            if (!$ev || $ev['id_admin'] != $user['id']) {
+                Session::flash('error', 'No tienes permiso para acceder a este evento.');
+                $this->redirect('admin/events');
+                return;
+            }
+        }
 
         $errors = [];
         $nombre = $this->input('nombre');
@@ -100,7 +121,21 @@ class AgendaController extends Controller
     {
         $this->requireRole('admin', 'manager');
 
+        $user     = Session::user();
         $idEvento = (int) $this->input('id_evento');
+
+        // Verifica acceso del manager
+        if ($user['tipoU'] == 4) {
+            $db   = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id_admin FROM tbx_eventos WHERE id = ?");
+            $stmt->execute([$idEvento]);
+            $ev = $stmt->fetch();
+            if (!$ev || $ev['id_admin'] != $user['id']) {
+                Session::flash('error', 'No tienes permiso para acceder a este evento.');
+                $this->redirect('admin/events');
+                return;
+            }
+        }
 
         $this->agendaModel->actualizarSesion((int) $id, [
             'nombre' => $this->input('nombre'),
@@ -118,7 +153,22 @@ class AgendaController extends Controller
     {
         $this->requireRole('admin', 'manager');
 
+        $user     = Session::user();
         $idEvento = (int) $this->input('id_evento');
+
+        // Verifica acceso del manager
+        if ($user['tipoU'] == 4) {
+            $db   = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id_admin FROM tbx_eventos WHERE id = ?");
+            $stmt->execute([$idEvento]);
+            $ev = $stmt->fetch();
+            if (!$ev || $ev['id_admin'] != $user['id']) {
+                Session::flash('error', 'No tienes permiso para acceder a este evento.');
+                $this->redirect('admin/events');
+                return;
+            }
+        }
+
         $this->agendaModel->eliminarSesion((int) $id);
 
         Session::flash('success', 'Sesión eliminada.');

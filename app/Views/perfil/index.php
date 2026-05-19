@@ -1,4 +1,10 @@
 <?php
+/**
+ * Vista: Perfil de Usuario
+ * 
+ * @var array $usuario Datos del usuario
+ */
+
 $roles = [
     1 => 'admin',
     2 => 'delegacion',

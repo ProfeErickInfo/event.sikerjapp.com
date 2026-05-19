@@ -1,3 +1,11 @@
+<?php
+/**
+ * @var array $eventos Lista de eventos
+ * @var int $page Página actual
+ * @var int $pages Total de páginas
+ * @var int $total Total de eventos
+ */
+?>
 <!-- Encabezado -->
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
@@ -79,7 +87,14 @@
                                          class="btn btn-sm btn-outline-info" title="Credenciales">
                                           <i class="bi bi-person-badge"></i>
                                 </a>
-
+<a href="<?= url('admin/certificados/' . $ev['id']) ?>"
+   class="btn btn-sm btn-outline-warning" title="Certificados">
+    <i class="bi bi-award"></i>
+</a>
+                                <a href="<?= url('admin/certificado/' . $ev['id']) ?>"
+                                   class="btn btn-sm btn-outline-warning" title="Configurar certificado">
+                                    <i class="bi bi-gear"></i>
+                                </a>
                                 <a href="<?= url('admin/events/edit/' . $ev['id']) ?>"
                                    class="btn btn-sm btn-outline-warning" title="Editar">
                                     <i class="bi bi-pencil"></i>
@@ -92,6 +107,15 @@
    class="btn btn-sm btn-outline-secondary" title="Documentos">
     <i class="bi bi-file-earmark"></i>
 </a>
+                                <?php if (!empty($ev['id_admin']) && Session::user()['tipoU'] == 1): ?>
+                                <form action="<?= url('admin/events/eliminar-manager/' . $ev['id']) ?>"
+                                      method="POST"
+                                      onsubmit="return confirm('¿Eliminar el manager de este evento? El correo quedará libre.')">
+                                    <button class="btn btn-sm btn-outline-danger" title="Eliminar manager">
+                                        <i class="bi bi-person-x"></i>
+                                    </button>
+                                </form>
+                                <?php endif; ?>
                                 <form action="<?= url('admin/events/delete/' . $ev['id']) ?>"
                                       method="POST"
                                       onsubmit="return confirm('¿Eliminar este evento?')">

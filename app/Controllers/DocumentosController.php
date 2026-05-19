@@ -50,6 +50,14 @@ class DocumentosController extends Controller
             return;
         }
 
+        // Verifica acceso del manager
+        $user = Session::user();
+        if ($user['tipoU'] == 4 && $evento['id_admin'] != $user['id']) {
+            Session::flash('error', 'No tienes permiso para acceder a este evento.');
+            $this->redirect('admin/events');
+            return;
+        }
+
         $documentos = $this->documentoModel->getByEvento((int) $id);
 
         $this->viewWithLayout('admin/documentos/index', 'layouts/main', [
@@ -63,6 +71,20 @@ class DocumentosController extends Controller
     public function upload(string $id): void
     {
         $this->requireRole('admin', 'manager');
+
+        // Verifica acceso del manager
+        $user = Session::user();
+        if ($user['tipoU'] == 4) {
+            $db   = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id_admin FROM tbx_eventos WHERE id = ?");
+            $stmt->execute([$id]);
+            $ev = $stmt->fetch();
+            if (!$ev || $ev['id_admin'] != $user['id']) {
+                Session::flash('error', 'No tienes permiso para acceder a este evento.');
+                $this->redirect('admin/events');
+                return;
+            }
+        }
 
         $nombre = $this->input('nombre');
 
@@ -121,6 +143,22 @@ class DocumentosController extends Controller
     public function delete(string $id): void
     {
         $this->requireRole('admin', 'manager');
+
+        $idEvento = (int) $this->input('id_evento');
+
+        // Verifica acceso del manager
+        $user = Session::user();
+        if ($user['tipoU'] == 4) {
+            $db   = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT id_admin FROM tbx_eventos WHERE id = ?");
+            $stmt->execute([$idEvento]);
+            $ev = $stmt->fetch();
+            if (!$ev || $ev['id_admin'] != $user['id']) {
+                Session::flash('error', 'No tienes permiso para acceder a este evento.');
+                $this->redirect('admin/events');
+                return;
+            }
+        }
 
         $doc = $this->documentoModel->eliminar((int) $id);
 

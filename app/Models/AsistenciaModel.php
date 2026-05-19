@@ -141,4 +141,42 @@ class AsistenciaModel extends Model
 
         return $stmt->fetch();
     }
+
+
+    // Busca usuario inscrito por número de documento
+public function getUsuarioByDocumento(string $documento, int $idEvento): array|false
+{
+    // Busca en inscripciones individuales
+    $stmt = $this->db->prepare(
+        "SELECT u.id, u.name as nombre, u.email,
+                NULL as delegacion_nombre,
+                i.estado as inscripcion_estado,
+                ? as id_evento, 'individual' as tipo
+         FROM trn_inscripciones i
+         LEFT JOIN wx25_usu u ON i.id_usuario = u.id
+         WHERE i.documento = ? AND i.id_evento = ? AND i.tipo = 1
+         LIMIT 1"
+    );
+    $stmt->execute([$idEvento, $documento, $idEvento]);
+    $resultado = $stmt->fetch();
+
+    if ($resultado) return $resultado;
+
+    // Busca en participantes de delegación
+    $stmt = $this->db->prepare(
+        "SELECT p.id, p.nombre, p.email,
+                d.nombre as delegacion_nombre,
+                i.estado as inscripcion_estado,
+                ? as id_evento, 'participante' as tipo
+         FROM tbx_participantes p
+         LEFT JOIN tbx_delegaciones d ON d.id = p.id_delegacion
+         LEFT JOIN trn_inscripciones i ON i.id_participante = p.id AND i.id_evento = ?
+         WHERE p.documento = ? AND i.id_evento = ?
+         LIMIT 1"
+    );
+    $stmt->execute([$idEvento, $idEvento, $documento, $idEvento]);
+    return $stmt->fetch();
 }
+}
+
+

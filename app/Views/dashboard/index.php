@@ -235,7 +235,7 @@ $credAprobada = $credModel->isAprobada($user['id'], $ins['id_evento']);
                     <a href="<?= url('events') ?>" class="btn btn-outline-primary btn-sm text-start">
                         <i class="bi bi-calendar3 me-2"></i>Ver Eventos
                     </a>
-                    <?php if (in_array($user['tipoU'], [0, 3])): ?>
+                    <?php if (in_array($user['tipoU'], [1, 4])): ?>
                     <a href="<?= url('admin/events/create') ?>" class="btn btn-outline-success btn-sm text-start">
                         <i class="bi bi-plus-circle me-2"></i>Crear Evento
                     </a>
@@ -252,3 +252,13 @@ $credAprobada = $credModel->isAprobada($user['id'], $ins['id_evento']);
     </div>
 
 </div>
+
+<style>
+@media (max-width: 480px) {
+    /* Tabla de inscripciones simplificada en móvil */
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        display: none; /* oculta columna Valor en móvil */
+    }
+}
+</style>

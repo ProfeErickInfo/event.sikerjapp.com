@@ -353,13 +353,23 @@ public function actualizarParticipante(string $id): void
     // GET /admin/inscripciones
     public function index(): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
 
         $idEvento = (int) $this->query('evento', 0);
         $db       = Database::getInstance()->getConnection();
-        $eventos  = $db->query(
-            "SELECT id, nombre_corto FROM tbx_eventos ORDER BY fecha DESC"
-        )->fetchAll();
+        
+        $user = Session::user();
+        if ($user['tipoU'] == 4) {
+            $stmt = $db->prepare(
+                "SELECT id, nombre_corto FROM tbx_eventos WHERE id_admin = ? ORDER BY fecha DESC"
+            );
+            $stmt->execute([$user['id']]);
+            $eventos = $stmt->fetchAll();
+        } else {
+            $eventos = $db->query(
+                "SELECT id, nombre_corto FROM tbx_eventos ORDER BY fecha DESC"
+            )->fetchAll();
+        }
 
         $inscripciones = [];
         $stats         = [];
@@ -384,7 +394,7 @@ public function actualizarParticipante(string $id): void
     // POST /admin/inscripciones/aprobar/{id}
     public function aprobar(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
         $idEvento = (int) $this->input('id_evento');
         $this->inscripcionModel->aprobar((int) $id);
         Session::flash('success', 'Inscripción aprobada.');
@@ -394,7 +404,7 @@ public function actualizarParticipante(string $id): void
     // POST /admin/inscripciones/cancelar/{id}
     public function cancelar(string $id): void
     {
-        $this->requireRole('admin', 'admin_torneo');
+        $this->requireRole('admin', 'manager');
         $idEvento = (int) $this->input('id_evento');
         $this->inscripcionModel->cancelar((int) $id);
         Session::flash('success', 'Inscripción cancelada.');
@@ -448,5 +458,91 @@ public function cancelarParticipante(string $id): void
     Session::flash('success', 'Inscripción cancelada correctamente.');
     $this->redirect('events/' . $idEvento . '/delegacion');
 }
+
+// GET /admin/inscripciones/nueva/{id_evento}
+public function nueva(string $idEvento): void
+{
+    $this->requireRole('admin', 'manager');
+
+    $evento = $this->eventoModel->find((int) $idEvento);
+    if (!$evento) {
+        $this->redirect('admin/inscripciones');
+        return;
+    }
+
+    $db       = Database::getInstance()->getConnection();
+    $tipoDocs = $db->query("SELECT * FROM tbx_tipo_documento ORDER BY id")->fetchAll();
+
+    $this->viewWithLayout('admin/inscripciones/nueva', 'layouts/main', [
+        'title'    => 'Inscribir Persona — ' . $evento['nombre_corto'],
+        'evento'   => $evento,
+        'tipoDocs' => $tipoDocs,
+    ]);
+}
+
+// POST /admin/inscripciones/registrar
+public function registrar(): void
+{
+    $this->requireRole('admin', 'manager');
+
+    $idEvento = (int) $this->input('id_evento');
+    $evento   = $this->eventoModel->find($idEvento);
+
+    // Verifica si el email ya tiene usuario
+    $email = trim($this->input('email'));
+    $db    = Database::getInstance()->getConnection();
+
+    $stmt = $db->prepare("SELECT id FROM wx25_usu WHERE email = ?");
+    $stmt->execute([$email]);
+    $usuarioExistente = $stmt->fetch();
+
+    if ($usuarioExistente) {
+        // Ya existe — verifica si ya está inscrito
+        if ($this->inscripcionModel->isInscrito($usuarioExistente['id'], $idEvento)) {
+            Session::flash('error', 'Esa persona ya está inscrita en este evento.');
+            $this->redirect('admin/inscripciones/nueva/' . $idEvento);
+            return;
+        }
+        $idUsuario = $usuarioExistente['id'];
+    } else {
+        // Crea el usuario automáticamente
+        require_once ROOT_PATH . '/app/Models/UsuarioModel.php';
+        $usuarioModel = new UsuarioModel();
+        $password     = substr(str_shuffle('abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789@#$!'), 0, 10);
+
+        $idUsuario = $usuarioModel->register([
+            'tipoU' => 3,
+            'name'  => trim($this->input('nombre')),
+            'email' => $email,
+            'nickz' => $email,
+            'pazz'  => $password,
+        ]);
+
+        // Envía credenciales por correo
+        require_once ROOT_PATH . '/core/Mailer.php';
+        $mailer = new Mailer();
+        $mailer->sendWelcome($email, trim($this->input('nombre')), $password);
+    }
+
+    // Inscribe
+    $this->inscripcionModel->inscribirIndividual([
+        'id_evento'    => $idEvento,
+        'id_usuario'   => $idUsuario,
+        'valor'        => $evento['valor_inscripcion'] ?? 0,
+        'nombre'       => trim($this->input('nombre')),
+        'tipo_doc'     => (int) $this->input('tipo_doc'),
+        'documento'    => trim($this->input('documento')),
+        'telefono'     => trim($this->input('telefono')),
+        'nacionalidad' => trim($this->input('nacionalidad', 'Colombiana')),
+        'fecha_nac'    => $this->input('fecha_nac'),
+        'genero'       => (int) $this->input('genero', 1),
+    ]);
+
+    Session::flash('success', '¡Persona inscrita correctamente! Se le enviaron sus credenciales de acceso.');
+    $this->redirect('admin/inscripciones?evento=' . $idEvento);
+}
+
+
+
 
 }
