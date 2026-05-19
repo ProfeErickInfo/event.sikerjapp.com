@@ -68,7 +68,7 @@ class EventosController extends Controller
     // GET /admin/events — Lista admin
     public function index(): void
     {
-        $this->requireAuth();
+        $this->requireRole('admin', 'manager');
         $user = Session::user();
 
         $perPage = 15;
