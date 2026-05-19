@@ -310,7 +310,11 @@ if (Session::isLoggedIn()) {
                 <?php endif; ?>
             </li>
             <?php endif; ?>
-
+<li class="nav-item">
+    <a class="nav-link" href="<?= url('admin/reportes') ?>">
+        <i class="bi bi-bar-chart"></i> Reportes
+    </a>
+</li>
             <li><div class="section-title">Mi Cuenta</div></li>
             <li class="nav-item">
                 <a class="nav-link" href="<?= url('perfil') ?>">
@@ -447,6 +451,7 @@ if (Session::isLoggedIn()) {
         }
     });
 </script>
+
 <script>
 // ── TABLAS RESPONSIVE EN MÓVIL ───────────────────────────────
 if (window.innerWidth <= 768) {
@@ -455,16 +460,15 @@ if (window.innerWidth <= 768) {
         const headers = Array.from(table.querySelectorAll('thead th'))
                              .map(th => th.textContent.trim());
         
-        if (headers.length <= 3) return; // Si tiene 3 o menos columnas no hace nada
+        if (headers.length <= 3) return;
 
-        // Agrega columna de "ver más" en el header
+        // Oculta columnas desde la 4ta en el header
         const thead = table.querySelector('thead tr');
         if (thead) {
             thead.querySelectorAll('th:nth-child(n+4)').forEach(th => {
                 th.style.display = 'none';
             });
             const thMore = document.createElement('th');
-            thMore.textContent = '';
             thMore.style.width = '40px';
             thead.appendChild(thMore);
         }
@@ -481,22 +485,42 @@ if (window.innerWidth <= 768) {
 
             // Construye contenido del modal
             let modalContent = '';
+            let accionesContent = '';
+
             cells.forEach((td, i) => {
-                if (headers[i]) {
+                // Detecta si la celda contiene botones/formularios (acciones)
+                const tieneAcciones = td.querySelector('button, a.btn, form') !== null;
+
+                if (tieneAcciones) {
+                    // Agrupa todas las acciones juntas al final
+                    // Convierte botones a display block para verlos verticalmente
+                    const clon = td.cloneNode(true);
+                    clon.querySelectorAll('.d-flex').forEach(div => {
+                        div.style.flexDirection = 'column';
+                        div.style.gap = '8px';
+                        div.style.alignItems = 'stretch';
+                    });
+                    clon.querySelectorAll('.btn').forEach(btn => {
+                        btn.style.width = '100%';
+                        btn.style.textAlign = 'center';
+                        btn.style.padding = '10px';
+                        btn.style.fontSize = '0.9rem';
+                    });
+                    accionesContent += clon.innerHTML;
+                } else if (headers[i]) {
                     modalContent += `
                         <div class="d-flex justify-content-between align-items-start py-2 border-bottom">
                             <small class="text-muted fw-semibold" style="min-width:100px;">
                                 ${headers[i]}
                             </small>
-                            <div class="text-end">${td.innerHTML}</div>
+                            <div class="text-end ms-2">${td.innerHTML}</div>
                         </div>`;
                 }
             });
 
-            // Crea ID único para el modal
-            const modalId = 'modal_row_' + rowIndex + '_' + Date.now();
+            const modalId = 'modal_row_' + rowIndex + '_' + Math.random().toString(36).substr(2,5);
 
-            // Agrega botón "..." en la fila
+            // Botón "..." en la fila
             const tdBtn = document.createElement('td');
             tdBtn.innerHTML = `
                 <button class="btn btn-sm" 
@@ -507,7 +531,7 @@ if (window.innerWidth <= 768) {
                 </button>`;
             row.appendChild(tdBtn);
 
-            // Crea el modal
+            // Modal con acciones en sección separada
             const modal = document.createElement('div');
             modal.className = 'modal fade';
             modal.id = modalId;
@@ -519,8 +543,12 @@ if (window.innerWidth <= 768) {
                             <h6 class="modal-title fw-bold">Detalle</h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body p-3">
                             ${modalContent}
+                            ${accionesContent ? `
+                            <div class="mt-3 d-grid gap-2">
+                                ${accionesContent}
+                            </div>` : ''}
                         </div>
                     </div>
                 </div>`;
@@ -529,5 +557,6 @@ if (window.innerWidth <= 768) {
     });
 }
 </script>
+
 </body>
 </html>

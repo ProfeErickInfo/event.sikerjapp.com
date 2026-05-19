@@ -18,9 +18,9 @@ $tipoNombre = $roles[$usuario['tipoU']] ?? 'Usuario';
     <div class="col-lg-8">
 
         <!-- Encabezado perfil -->
-        <div class="card mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center gap-4">
+       <div class="card mb-4">
+    <div class="card-body p-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
                     <!-- Avatar -->
                     <div style="width:72px;height:72px;background:linear-gradient(135deg,#1a2035,#2d3a5e);
                                 border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -38,10 +38,10 @@ $tipoNombre = $roles[$usuario['tipoU']] ?? 'Usuario';
                             <?= $usuario['estado'] == 1 ? 'Activo' : 'Inactivo' ?>
                         </span>
                     </div>
-                    <div class="ms-auto text-end">
-                        <small class="text-muted d-block">Miembro desde</small>
-                        <strong><?= formatDate($usuario['fec_reg']) ?></strong>
-                    </div>
+                  <div class="ms-auto text-end d-none d-md-block">
+    <small class="text-muted d-block">Miembro desde</small>
+    <strong><?= formatDate($usuario['fec_reg']) ?></strong>
+</div>
                 </div>
             </div>
         </div>

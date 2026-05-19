@@ -9,26 +9,24 @@ class EventoModel extends Model
     protected string $table = 'tbx_eventos';
 
     // Lista de eventos públicos (activos) con categoría
-    public function getPublicos(int $limit = 12, int $offset = 0): array
-    {
-        return $this->raw(
-            "SELECT e.*, c.nombre as categoria
-             FROM tbx_eventos e
-             LEFT JOIN tbx_categorias c ON e.id_categoria = c.id
-             WHERE e.estado = 1
-             ORDER BY e.fecha DESC
-             LIMIT ? OFFSET ?",
-            [$limit, $offset]
-        );
-    }
+  public function getPublicos(int $limit = 12, int $offset = 0): array
+{
+    return $this->raw(
+        "SELECT e.*, c.nombre as categoria
+         FROM tbx_eventos e
+         LEFT JOIN tbx_categorias c ON e.id_categoria = c.id
+         ORDER BY e.estado DESC, e.fecha DESC
+         LIMIT ? OFFSET ?",
+        [$limit, $offset]
+    );
+}
 
     // Cuenta eventos públicos (para paginación)
-    public function countPublicos(): int
-    {
-        $stmt = $this->db->query("SELECT COUNT(*) FROM tbx_eventos WHERE estado = 1");
-        return (int) $stmt->fetchColumn();
-    }
-
+   public function countPublicos(): int
+{
+    $stmt = $this->db->query("SELECT COUNT(*) FROM tbx_eventos");
+    return (int) $stmt->fetchColumn();
+}
     // Detalle de un evento con categoría
     public function getConCategoria(int $id): array|false
     {

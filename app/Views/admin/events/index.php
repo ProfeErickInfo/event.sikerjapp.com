@@ -12,9 +12,11 @@
         <h4 class="fw-bold mb-1">Gestionar Eventos</h4>
         <small class="text-muted"><?= $total ?> eventos en total</small>
     </div>
-    <a href="<?= url('admin/events/create') ?>" class="btn btn-primary">
-        <i class="bi bi-plus-circle me-2"></i>Nuevo Evento
-    </a>
+   <?php if (Session::user()['tipoU'] == 1): ?>
+<a href="<?= url('admin/events/create') ?>" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i>Nuevo Evento
+</a>
+<?php endif; ?>
 </div>
 
 <div class="card">

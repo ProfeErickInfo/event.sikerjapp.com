@@ -31,10 +31,10 @@
 <?php else: ?>
     <div class="row g-4">
         <?php foreach ($eventos as $ev): ?>
-        <div class="col-lg-4 col-md-6 col-12">
-            <div class="card h-100" style="border-radius:12px;overflow:hidden;transition:transform 0.2s;"
-                 onmouseover="this.style.transform='translateY(-4px)'"
-                 onmouseout="this.style.transform='translateY(0)'">
+     <div class="col-lg-4 col-md-6 col-12">
+    <div class="card h-100" style="border-radius:12px;overflow:hidden;
+         <?= $ev['estado'] == 0 ? 'opacity:0.6;filter:grayscale(60%);' : 'transition:transform 0.2s;' ?>"
+         <?= $ev['estado'] == 1 ? 'onmouseover="this.style.transform=\'translateY(-4px)\'" onmouseout="this.style.transform=\'translateY(0)\'"' : '' ?>>
 
                 <!-- Imagen del evento -->
                 <div style="height:180px;overflow:hidden;background:#1a2035;position:relative;">
@@ -81,22 +81,34 @@
                     </div>
 
                     <!-- Inscripción -->
-                    <div class="d-flex align-items-center justify-content-between">
-                        <?php if ($ev['inscripcion'] == 1): ?>
-                            <span class="badge bg-success-subtle text-success">
-                                <i class="bi bi-check-circle me-1"></i>Inscripciones abiertas
-                            </span>
-                        <?php else: ?>
-                            <span class="badge bg-secondary-subtle text-secondary">
-                                <i class="bi bi-x-circle me-1"></i>Cerrado
-                            </span>
-                        <?php endif; ?>
+                   <!-- Inscripción -->
+<div class="d-flex align-items-center justify-content-between">
+    <?php if ($ev['estado'] == 0): ?>
+        <span class="badge bg-secondary">
+            <i class="bi bi-lock me-1"></i>Evento Cerrado
+        </span>
+        <span class="text-muted small">
+            <i class="bi bi-eye-slash"></i>
+        </span>
+    <?php elseif ($ev['inscripcion'] == 1): ?>
+        <span class="badge bg-success-subtle text-success">
+            <i class="bi bi-check-circle me-1"></i>Inscripciones abiertas
+        </span>
+        <a href="<?= url('events/' . $ev['id']) ?>"
+           class="btn btn-sm btn-outline-primary">
+            Ver más <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    <?php else: ?>
+        <span class="badge bg-secondary-subtle text-secondary">
+            <i class="bi bi-x-circle me-1"></i>Cerrado
+        </span>
+        <a href="<?= url('events/' . $ev['id']) ?>"
+           class="btn btn-sm btn-outline-secondary">
+            Ver más <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    <?php endif; ?>
+</div>
 
-                        <a href="<?= url('events/' . $ev['id']) ?>"
-                           class="btn btn-sm btn-outline-primary">
-                            Ver más <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>

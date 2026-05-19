@@ -98,3 +98,10 @@ $router->post('admin/certificados/revocar',   'CredencialController@revocarCerti
 
 $router->get( 'admin/inscripciones/nueva/{id}', 'InscripcionController@nueva',     ['auth']);
 $router->post('admin/inscripciones/registrar',  'InscripcionController@registrar', ['auth']);
+
+// ── REPORTES ─────────────────────────────────────────────────
+$router->get('admin/reportes',                        'ReporteController@index',        ['auth']);
+$router->get('admin/reportes/{id}',                   'ReporteController@evento',       ['auth']);
+$router->get('admin/reportes/{id}/pdf/inscritos',     'ReporteController@pdfInscritos', ['auth']);
+$router->get('admin/reportes/{id}/pdf/pagos',         'ReporteController@pdfPagos',     ['auth']);
+$router->get('admin/reportes/{id}/pdf/asistencia',    'ReporteController@pdfAsistencia',['auth']);
